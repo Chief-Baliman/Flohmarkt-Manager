@@ -7,6 +7,8 @@ import {
   setPersistence,
   browserLocalPersistence
 } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js';
+import { SEED_PRODUCTS } from './seed-products.js';
+
 import {
   getDatabase,
   ref,
@@ -30,8 +32,9 @@ const firebaseConfig = {
 };
 
 const APP_ROOT = 'flohmarktManager';
-const CACHE_KEY = 'ccfm_cache_v2';
+const CACHE_KEY = 'ccfm_cache_v3';
 const OWNER_UID = 'FMZW16NbeQXPKmVE50BcnbRYI2o1';
+const SEED_VERSION = 'preisliste-2026-06-18-v1';
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
@@ -90,7 +93,8 @@ async function saveRemote() {
     meta: {
       updatedAt: serverTimestamp(),
       updatedBy: state.user.email,
-      version: '1.1.0'
+      version: '1.2.0',
+      seedVersion: SEED_VERSION
     }
   };
   try {
@@ -147,11 +151,29 @@ function initAuth() {
   });
 }
 
+function seedProductsIfNeeded(data) {
+  const hasRemoteProducts = data && data.products && Object.keys(data.products).length > 0;
+  const alreadySeeded = data?.meta?.seedVersion === SEED_VERSION;
+  if (hasRemoteProducts || alreadySeeded) return false;
+
+  state.products = Object.fromEntries(SEED_PRODUCTS.map((product) => [product.id, product]));
+  state.sales = data?.sales || {};
+  state.settings = { ...state.settings, ...(data?.settings || {}) };
+  flash(`${SEED_PRODUCTS.length} Produkte aus der Preisliste geladen.`);
+  saveRemote();
+  return true;
+}
+
 function startRealtimeSync() {
   const rootRef = ref(db, APP_ROOT);
   onValue(rootRef, (snapshot) => {
     const data = snapshot.val();
     state.remoteReady = true;
+    if (seedProductsIfNeeded(data)) {
+      setSyncStatus('Startdaten werden synchronisiert');
+      renderAll();
+      return;
+    }
     if (data) {
       state.products = data.products || {};
       state.sales = data.sales || {};

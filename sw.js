@@ -1,9 +1,10 @@
-const CACHE_NAME = 'chiefcards-flohmarkt-manager-v1-1-0';
+const CACHE_NAME = 'chiefcards-flohmarkt-manager-v1-2-0';
 const APP_SHELL = [
   './',
   './index.html',
   './styles.css',
   './app.js',
+  './seed-products.js',
   './manifest.webmanifest',
   './icons/icon-192.svg',
   './icons/icon-512.svg'

@@ -44,3 +44,10 @@ Der Kamera-Scan nutzt die moderne Browser-API `BarcodeDetector`. Sie funktionier
 ## Shopify
 
 Version 1.1 schreibt keine Bestände zu Shopify zurück. Die Architektur ist vorbereitet, um später Shopify-Daten als Quelle zu importieren oder Produkte zu verknüpfen.
+
+
+## Version 1.2
+
+Diese Version enthält die Startdaten aus der gelieferten Preisliste. Beim ersten Login werden die Produkte automatisch unter `flohmarktManager/products` in die Firebase Realtime Database geschrieben, aber nur, wenn dort noch keine Produkte vorhanden sind. Bestehende Produkte werden nicht überschrieben.
+
+Alle importierten Produkte haben zunächst Bestand `1`, weil die Preisliste keine echten Bestandszahlen enthält. Bitte vor dem ersten Flohmarkt die Bestände prüfen und anpassen.
